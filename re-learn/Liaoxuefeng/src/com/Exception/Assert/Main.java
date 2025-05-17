@@ -1,0 +1,16 @@
+package com.Exception.Assert;
+
+// assert
+//断言是一种调试方式，断言失败会抛出AssertionError，只能在开发和测试阶段启用断言；
+//
+//对可恢复的错误不能使用断言，而应该抛出异常；
+//
+//断言很少被使用，更好的方法是编写单元测试。
+public class Main {
+    public static void main(String[] args) {
+        int x = -1;
+        assert x>0:"x must >0";
+        System.out.println(x);
+    }
+}
+

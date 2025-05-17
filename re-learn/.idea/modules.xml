@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Liaoxuefeng/Liaoxuefeng.iml" filepath="$PROJECT_DIR$/Liaoxuefeng/Liaoxuefeng.iml" />
+      <module fileurl="file://$PROJECT_DIR$/module18/module18.iml" filepath="$PROJECT_DIR$/module18/module18.iml" />
+      <module fileurl="file://$PROJECT_DIR$/module19/module19.iml" filepath="$PROJECT_DIR$/module19/module19.iml" />
+      <module fileurl="file://$PROJECT_DIR$/module20/module20.iml" filepath="$PROJECT_DIR$/module20/module20.iml" />
+      <module fileurl="file://$PROJECT_DIR$/module21/module21.iml" filepath="$PROJECT_DIR$/module21/module21.iml" />
+      <module fileurl="file://$PROJECT_DIR$/module22/module22.iml" filepath="$PROJECT_DIR$/module22/module22.iml" />
+      <module fileurl="file://$PROJECT_DIR$/module23/module23.iml" filepath="$PROJECT_DIR$/module23/module23.iml" />
+      <module fileurl="file://$PROJECT_DIR$/module24/module24.iml" filepath="$PROJECT_DIR$/module24/module24.iml" />
+      <module fileurl="file://$PROJECT_DIR$/module25/module25.iml" filepath="$PROJECT_DIR$/module25/module25.iml" />
+      <module fileurl="file://$PROJECT_DIR$/re-learn.iml" filepath="$PROJECT_DIR$/re-learn.iml" />
+    </modules>
+  </component>
+</project>
