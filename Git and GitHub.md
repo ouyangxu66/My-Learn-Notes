@@ -107,8 +107,22 @@ $ git remote add origin https://github.com/ouyangxu66/learngit.git
 
 把本地库的内容推送到远程，用`git push`命令，实际上是把当前分支`master`推送到远程;而且从现在起只要本地仓库做了修改,用下面的git push命令就可以将本地最新的master分支推送到GitHub
 
+首次推送到远程使用下面命令:
+
 ```bash
-$ git push -u origin master
+$ git push -u <remote name> master
+```
+
+后续的推送,自动关联到远程分支:
+
+```bash
+git push <remote name>
+```
+
+若希望未来所有新分支自动跟踪远程同名分支，可全局启用自动关联：
+
+```bash
+git config --global push.autoSetupRemote true
 ```
 
 将已经拉取的远程仓库从HTTPS连接修改为SSH连接
