@@ -325,3 +325,50 @@ Git的版本库里存了很多东西，其中最重要的就是称为stage（或
 注意
 
 > 因为Git跟踪并管理的是修改，而非文件,所以每次修改，如果不用`git add`到暂存区，那就不会加入到`commit`中
+
+## 八. 自定义Git
+
+### 1.配置别名
+
+用co表示checkout,用ci表示commit,用br表示branch,用st表示status
+
+```bash
+$ git config --global alias.co checkout
+$ git config --global alias.ci commit
+$ git config --global alias.br branch
+$ git config --global alias.st status
+```
+
+用last表示最近一次提交
+
+```bash
+$ git config --global alias.last 'log -1'
+```
+
+用lg表示日志显示模式
+
+```bash
+git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+```
+
+> 加上 --global 表示针对当前用户起作用,如果不加,那只是对当前仓库起作用
+
+### 2.查看文件
+
+当前仓库的配置文件都放在 .git/config 文件中
+
+用下面的命令查看当前仓库配置文件
+
+```bash
+cat .git/config
+```
+
+当前用户的Git配置文件放在用户主目录下的一个隐藏文件`.gitconfig`中
+
+用下面的命令查看当前用户配置文件:
+
+```bash
+cat ~/.gconfig
+```
+
