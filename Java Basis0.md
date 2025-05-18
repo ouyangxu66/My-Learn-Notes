@@ -8865,13 +8865,266 @@ jvm利用IO流技术将class文件加载到内存,但是不是jvm直接插手,�
 基于jdk8了解
 ```
 
+```java
+1.概述:
+在jvm中，负责将本地上的class文件加载到内存的对象_classLoader
+2.分类：
+	BootStrapSlassLoader:根类加载器->C语言写的，我们是获取不到的也称之为引导类加载器，负责Java的核心类加载的
+		比如:System,String等
+		jre/lib/rt.jar下的类都是核心类
+		
+	ExtclassLoader:扩展类加载器
+		负责jre的扩展目录中的jar包的加载
+		在jdk中jre的lib目录下的ext目录
+		
+	AppclassLoader:系统类加载器
+		负责在jvm启动时加载来自java命令的class文件(自定义类)，以及classPath环境变量所指定的jar包（第三方jar包）
+		
+		不同的类加载器负责加载不同的类
+3.三者的关系(从类加载机制层面):
+	AppclassLoader的父类加载器ExtClassLoader
+	ExtClassLoader的父类加载器是BootStrapClassLoader
+	但是：他们从代码级别上来看，没有子父类继承关系->他们都有一个共同的父类-习classLoader
+	
+4.获取类加载器对象:
+	getclassLoaderO是class对象中的方法
+	类名.class.getclassLoader()
+	
+5.获取类加载器对象对应的父类加载器
+	classLoader类中的方法:ClassLoader
+	getParent()->没啥用
+	
+6.双亲委派（全盘负责委托机制）
+	a.Person类中有一个String
+		Person本身是AppclassLoader加载
+		String是BootStrapClassLoader加载
+	b.加载顺序：
+		Person本身是App加载，按道理来说string也是App加载
+		但是App加载String的时候，先问一间Ext，说：Ext你加载这个String吗?
+		Ext说：我不加载，我负责加载的是扩展类，但是app你别着急，我问问我爹去->boot
+		Ext说:boot,你加载string吗?
+		boot说：正好我加载核心类，行吧，我加载吧！
+7.类加载器的cache（缓存）机制（扩展）：一个类加载到内存之后，缓存中也会保存一份儿，后面如果再使用此类，如果缓存中保存了这个类，就直接返回他，如果没有才加载这个类，下一次如果有其他类在使用的时候就不会重新加载了，直接去缓存
+中拿，保证了类在内存中的唯一性
+
+8.所以：类加载器的双亲委派和缓存机制共同造就了加载类的特点：保证了类在内存中的唯一性
 ```
+
+```java
+package com.learn.b_classloader;
+
+public class Demo01ClassLoader {
+    public static void main(String[] args) {
+        //appClassLoader
+        //app();
+        //extClassLoader
+       // ext();
+        boot();
+    }
+
+    private static void boot() {
+        ClassLoader classLoader = String.class.getClassLoader();
+        System.out.println("classLoader = "+classLoader);
+    }
+
+
+    private static void ext() {
+
+}
+
+private static void app() {
+        ClassLoader classLoader = Demo01ClassLoader.class.getClassLoader();
+        System.out.println("classLoader = "+classLoader);
+    }
+
+}
 
 ```
 
 
 
 ## 第三章 反射
+
+### 1.Class对象 
+
+```java
+万物皆对象：
+Class文件->有对象->class对象->描述class对象的类叫做Class类
+    
+成员变量->有对象->Field对象->描述Field对象的类叫做Field类
+
+成员方法->有对象->Method对象->描述Method对象的类叫做Method类
+
+构造方法->有对象->Constructor对象->描述Constructor对象的类叫做Constructor类
+```
+
+用反射的好处就是让代码变得更加灵活通用
+
+### 2.反射之获取Class类对象
+
+```java
+1.方式1:调用object中的getclass方法:
+	class <?> getclass ()
+2.方式2：
+	不管是基本类型还是引用类型，jvm都为其提供了一个静态成员：class
+3.方式3:Class类中的静态方法:
+	static Class<?> forName(String className)
+		className:传递的是类的全限定名（包名.类名)
+```
+
+> 获取类的全限定名小技巧,找到需要的类->右键复制路径->复制引用
+>
+> ![image-20250518105017455](C:\Users\xu\AppData\Roaming\Typora\typora-user-images\image-20250518105017455.png)
+
+```java
+    public void testGetClass() throws Exception {
+        Person person = new Person("Alice", 25);
+        Class<? extends Person> class1 = person.getClass();
+        System.out.println("class1 = " + class1);
+
+        System.out.println("==============================");
+        Class<? extends Person> class2 = Person.class;
+        System.out.println("class2 = " + class2);
+
+        System.out.println("==============================");
+        Class<?> class3
+            =Class.forName("com.learn.c_reflect.Person");
+        System.out.println("class3 = " + class3);
+    }
+```
+
+#### 2.1 三种获取Class对象的方式最通用的一种
+
+```java
+1．方式3:Class类中的静态方法:
+	static Class<?> forName(String className)
+		className：传递的是类的全限定名（包名.类名）
+2.原因:参数为string形式，可以和properties文件结合使用
+```
+
+```java
+className=com.learn.c_reflect.Person
+```
+
+```java
+public class Demo02GetClass {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        Properties properties = new Properties();
+        FileInputStream in = new FileInputStream("module25\\pro.properties");
+        properties.load(in);
+
+        String className=properties.getProperty("className");
+        System.out.println("className = " + className);
+
+        System.out.println("==============================");
+        Class<?> aClass = Class.forName(className);
+        System.out.println("className = " + aClass);
+    }
+}
+
+```
+
+#### 2.2 三种获取Class对象的方式中最常用的一种
+
+```
+直接类名.class-->最方便使用
+```
+
+### 3.获取Class对象中的构造方法
+
+#### 3.1获取所有public的构造方法
+
+```
+Constructor<?>[] getConstructors() ->获取所有public的构造
+```
+
+```java
+public class Demo03Constructor {
+    public static void main(String[] args) {
+        Class<Person> aClass  = Person.class;
+        //获取所有public构造器
+        Constructor<?>[] constructors = aClass.getConstructors();// get all constructors
+        for (Constructor<?> constructor : constructors) {
+            System.out.println(constructor.toString());
+        }
+    }
+}
+```
+
+#### 3.2 获取空参构造_public
+
+```java
+1.Constructor<T> getConstructor(Class<?>... parameterTypes)
+-->获取指定的public构造
+	parameterTypes 为可变参数
+		a.如果获取的是空参构造：参数不用写
+		b.如果获取的是有参构造：参数写参数类型的class对象
+2.constructor类中的方法:
+	T newInstance(object...initargs)-> 创建对象
+					initargs：传递的是构造方法的实参
+a.如果根据无参构造new对象,initargs不写于
+b.如果根据有参构造new对象，initargs传递实参
+```
+
+```java
+public class Demo03Constructor {
+    public static void main(String[] args) throws Exception {
+        Class<Person> aClass  = Person.class;
+        //获取所有public构造器
+        Constructor<Person> constructor 
+            = aClass.getConstructor();
+        System.out.println("constructor = " + constructor);
+        
+        Person person = constructor.newInstance();
+        System.out.println("person = " + person);
+    }
+}
+```
+
+#### 3.3 利用空参构造创建对象的快捷方式_public
+
+```java
+Class类中的方法
+ T newInstance() ->根据空参构造创建对象(jdk 17之后过时的方法)
+    
+前提:
+	被反射的类中必须要public构造方法
+```
+
+#### 3.4  利用反射获取有参构造并创建对象_public
+
+```java
+public class Demo04Constructor {
+    public static void main(String[] args) throws Exception {
+        Class<Person> aClass = Person.class;
+
+        Constructor<Person> constructor = aClass.getConstructor(String.class, Integer.class);
+        System.out.println("constructor = " + constructor);
+
+        //下面好比是->Person alice = new Person("Alice", 25);
+        Person person = constructor.newInstance("Alice", 25);
+
+        //好比是直接输出Person对象，默认调用的是toString()
+        System.out.println("person = " + person);
+
+    }
+}
+```
+
+#### 3.5 利用反射获取私有构造(暴力反射)
+
+```java
+1.Constructor<?>[] getDeclaredConstructors()
+返回一个包含反映由此Class对象表示的类隐式或显式声明的所有构造函数的Constructor对象的数组。 -->获取所有构造方法,包括private
+2.Constructor<T> getDeclaredConstructor
+    (Class<?>... parameterTypes) -->获取指定的构造,包括private
+返回一个反映由此Class对象表示的类的指定构造函数的Constructor对象。
+3.Constructor有一个父类叫做Accessibleobject，里面有一个方法
+void setAccessible(booleanflag)I->修改访问权限
+flag为true:解除私有权限
+```
+
+
 
 ## 第四章 注解
 
