@@ -9116,17 +9116,250 @@ public class Demo04Constructor {
 ```java
 1.Constructor<?>[] getDeclaredConstructors()
 返回一个包含反映由此Class对象表示的类隐式或显式声明的所有构造函数的Constructor对象的数组。 -->获取所有构造方法,包括private
+    
 2.Constructor<T> getDeclaredConstructor
     (Class<?>... parameterTypes) -->获取指定的构造,包括private
 返回一个反映由此Class对象表示的类的指定构造函数的Constructor对象。
+    
 3.Constructor有一个父类叫做Accessibleobject，里面有一个方法
 void setAccessible(booleanflag)I->修改访问权限
 flag为true:解除私有权限
 ```
 
+```java
 
+public class Demo05Constructor {
+    public static void main(String[] args) throws Exception {
+        Class<Person> aClass = Person.class;
+        Constructor<Person> dc = aClass.getDeclaredConstructor(String.class);
+        //解除私有权限,暴力反射
+        dc.setAccessible(true);
+        Person person = dc.newInstance("woc");
+        System.out.println("person = " + person);
+    }
+}
+
+```
+
+### 4.反射方法
+
+#### 4.1 利用反射获取所有的成员方法_public
+
+```java
+1.Class类中的方法:
+	Method[] getMethods()->获取所有public方法,包括父类中的public方法
+```
+
+
+
+```java
+public class Demo06GetMethod {
+    public static void main(String[] args) {
+        Class<Person> aClass = Person.class;
+        //获取所有的公共方法
+        Method[] methods = aClass.getMethods();
+        for (Method method : methods) {
+            System.out.println("method = " + method);
+        }
+    }
+}
+```
+
+#### 4.2 反射之获取指定方法(有参,无参)_public
+
+```java
+1.格式:
+  Method getMethod (String name, Class<?>... parameterTypes)
+    			name:传递方法名
+                parameterTypes:传递方法参数类型的class对象
+返回一个反映由此Class对象表示的类或接口的指定公共成员方法的Method对象。
+
+2.调用方法:Method对象中的方法
+	Object invoke(Object obj, Object... args)
+	在指定对象上调用由此Method对象表示的基础方法，使用指定的参数。
+                   
+```
+
+```java
+    private static void method02() throws Exception {
+        Class<Person> aClass = Person.class;
+        Method setName = aClass.getMethod("setName", String.class);
+        Person person = aClass.newInstance();
+        //相当于调用person.setName()
+        setName.invoke(person,"杀杀杀");
+        //调用person.toString
+        System.out.println("person = " + person);
+    }
+```
+
+#### 4.3 反射之获取私有方法
+
+```java
+Method[] getDeclaredMethods() -->获取指定方法,包括私有方法
+    
+Method getDeclaredMethod(String name, Class<?>... parameterTypes) -->获取所有方法,包括私有方法
+    
+
+```
+
+```java
+    private static void method03() throws NoSuchMethodException {
+        Class<Person> aClass = Person.class;
+        //获取所有的方法,包括私有方法
+        Method[] methods =aClass.getDeclaredMethods() ;
+        for (Method method : methods) {
+            System.out.println("method = " + method);
+        }
+        //调用指定的私有方法
+        System.out.println("===========================");
+        Method dm=aClass.getDeclaredMethod("eat");
+        System.out.println("dm = " + dm);
+    }
+```
+
+```java
+   private static void method04() throws Exception {
+        Class<Person> aClass = Person.class;
+        Person person = aClass.newInstance();
+        Method method = aClass.getDeclaredMethod("eat");
+        method.setAccessible(true);
+        method.invoke(person);
+    }
+```
+
+### 5.反射成员变量
+
+#### 5.1 获取所有属性
+
+```java
+1.Class类中的方法:
+	Field[] getFields() -->获取所有Public属性
+
+	Field[] getDeclaredFields() -->获取所有属性,包括private属性
+```
+
+```java
+    private static void method01() {
+        Class<Student> aClass = Student.class;
+        //获取所有public属性
+        Field[] fields = aClass.getFields();
+        for (Field field : fields) {
+            System.out.println("field = " + field);
+        }
+        //获取所有属性,包括private属性
+        Field[] dfs = aClass.getDeclaredFields();
+        for (Field f : dfs) {
+            System.out.println("f = " + f);
+        }
+    }
+```
+
+#### 5.2 获取指定属性
+
+```java
+1.Class中的方法:
+	Field[] getField() -->获取指定Public属性
+
+	Field[] getDeclaredField() -->获取指定属性,包括private属性
+```
+
+```java
+    private static void method02() throws Exception {
+        Class<Student> aClass = Student.class;
+        Student student = aClass.newInstance();
+        //获取私有属性
+        Field name = aClass.getDeclaredField("name");
+        //解除私有权限
+        name.setAccessible(true);
+        //调用set方法为属性复制
+        name.set(student,"公关部");
+        //调用get方法获取属性值,相当于Javabean中的get方法
+        Object object = name.get(student);
+        System.out.println(object);
+    }
+```
+
+### 6.反射练习
+
+```java
+步骤：
+1.创建properties配置文件，配置信息
+	a.问题：properties配置文件放到哪里?
+		将来我们开发完之后给用户的是out路径下的class文件，将class文件打包，如果将配置文件直接放到模块下
+		那么out路径下是不会生成这个配置文件的，如果没有配置文件，程序也就运行不起来了
+	a.解决：我们可以将配置文件放到src下，放到src下，out路径下就会出现配置文件
+	
+	b.问题：将配置文件放到src下，out路径下会自动生成配置文件，但是如果我们将来将所有的配置文件都放到src下，那么src下面会显得特别乱
+	
+	b.解决：我们可以单独创建一个文件夹，将所有的配置文件放到此文件夹下，将此文件夹改成资源目录，取名为resources
+	
+2.读取配置文件，解析配置文件
+	a.问题：如果将配置文件放到resources资源目录下，我们怎么读取
+newFileInputstream("模块名\\resources\\properties文件名")->这样不行,out路径下没有resources -> 相当于写死了
+	b.问题解决:用类加载器
+classLoader classLoader =当前类.class.getclassLoader
+
+Inputstreamin=classLoader.getResourceAsStream("文件名")
+//自动扫描resources下的文件->可以简单理解为扫描out路径下的配置文件
+
+3.根据解析出来的className，创建class对象
+
+4.根据解析出来的methodName，获取对应的方法
+
+5.执行方法
+```
+
+
+
+```java
+public class Demo01Reflect {
+    public static void main(String [] args) throws Exception {
+
+        Properties properties = new Properties();
+
+        InputStream in = Demo01Reflect.class.getClassLoader().getResourceAsStream("pro.properties");
+        properties.load(in);
+        //System.out.println(properties);
+
+        String className = properties.getProperty("className");
+        String methodName = properties.getProperty("methodName");
+
+        Class<?> aClass = Class.forName(className);
+
+        Object o = aClass.newInstance();
+
+        Method method = aClass.getMethod(methodName);
+
+        method.invoke(o);
+    }
+}
+
+```
 
 ## 第四章 注解
+
+## 1.注解的介绍
+
+```java
+1.引用数据类型：
+		类 	数组 	接口 	枚举 	注解
+1.jdk1.5版本的新特性	->一个引用数据类型和类，接口，枚举是同一个层次的
+
+	引用数据类型:类	数组	接口	枚举	注解
+2.作用：
+	说明：对代码进行说明，生成doc文档(API文档）
+	检查:检查代码是否符合条件@Override(会用)@FunctionalInterface
+	分析：对代码进行分析，起到了代替配置文件的作用（会用）
+3.JDK中的注解：
+	@override->检测此方法是否为重写方法
+		jdk1.5版本，支持父类的方法重写
+		jdk1.6版本，支持接口的方法重写
+	@Deprecated->方法已经过时，不推荐使用
+		调用方法的时候，方法上会有横线，但是能用
+	@Suppresswarnings->消除警告@Suppresswarnings("al1")
+```
+
+
 
 ## 第五章 元注解
 

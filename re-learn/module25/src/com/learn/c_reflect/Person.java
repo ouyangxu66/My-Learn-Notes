@@ -4,6 +4,9 @@ public class Person {
     private String name;
     private Integer age;
 
+    private void eat(){
+        System.out.println("eat");
+    }
     public Person(String name, Integer age) {
         this.name = name;
         this.age = age;
