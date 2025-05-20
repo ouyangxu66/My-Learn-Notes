@@ -8751,7 +8751,7 @@ public class Test03 {
 5.会使用注解
 ```
 
-## 第一章 Junit单元测试
+## 第一章 Junit单元测试(重点)
 
 ### 1.Junit介绍
 
@@ -8943,7 +8943,7 @@ private static void app() {
 
 
 
-## 第三章 反射
+## 第三章 反射（重点）
 
 ### 1.Class对象 
 
@@ -9338,7 +9338,7 @@ public class Demo01Reflect {
 
 ## 第四章 注解
 
-## 1.注解的介绍
+### 1.注解的介绍
 
 ```java
 1.引用数据类型：
@@ -9355,15 +9355,270 @@ public class Demo01Reflect {
 		jdk1.5版本，支持父类的方法重写
 		jdk1.6版本，支持接口的方法重写
 	@Deprecated->方法已经过时，不推荐使用
-		调用方法的时候，方法上会有横线，但是能用
+				调用方法的时候，方法上会有横线，但是能用
 	@Suppresswarnings->消除警告@Suppresswarnings("al1")
+```
+
+### 2.注解的定义以及属性的定义格式
+
+```java
+大家需要知道的是，咱们这里说的注解属性，其实本质上是抽象方法，但是我们按照属性来理解，好理解，因为到时候使用注解的时候，需要用 = 为其赋值
+1.定义:
+	public @interface注解名{
+		
+	}
+2.定义属性：增强注解的作用
+	数据类型	属性名()->此属性没有默认值，需要在使用注解的时候为其赋值
+	数据类型	属性名()	default	值->此属性有默认值，如果有需要，还可以二次赋值
+3.注解中能定义什么类型的属性呢？
+	a.8种基本类型
+	b.String类型，class类型，枚举类型，注解类型
+	c.以及以上类型的一维数组
+```
+
+```java
+public @interface Book {
+    //书名
+    String name();
+    //作者
+    String[] authors();
+    //价格
+    int price();
+    //库存
+    int quantity() default 100;
+    
+}
+```
+
+### 3.注解的使用
+
+```
+1.注解的使用：
+说白了就是为注解中的属性赋值
+2.使用位置上：
+在类上使用，方法上使用，成员变量上使用，局部变量上使用，参数位置使用等
+3.使用格式：
+a.@注解名(属性名=值，属性名=值...)
+b.如果属性中有数组：
+@注解名(属性名={元素1,元素2..})
 ```
 
 
 
+```java
+public @interface Book {
+    //书名
+    String name();
+    //作者
+    String[] authors();
+    //价格
+    int price();
+    //库存
+    int quantity() default 100;
+    
+}
+```
+
+```java
+@Book(name="红楼梦",authors = {"11","22"},price = 100,quantity = 10)
+public class BookShelf {
+
+}
+```
+
+> 注解注意事项：
+> 1.空注解可以直接使用->空注解就是注解中没有任何的属性
+> 2.不同的位置可以使用一样的注解，但是同样的位置不能使用一样的注解
+> 3.使用注解时，如果此注解中有属性，注解中的属性一定要赋值，如果有多个属性，用，隔开
+> 如果注解中的属性有数组，使用
+> 4.如果注解中的属性值有默认值，那么我们不必要写，也不用重新赋值，反之必须写上
+> 5.如果注解中只有一个属性，并且属性名叫value，那么使用注解的时候，属性名不用写，直接写值
+> （包括单个类型，还包括数组）
+
+### 4.注解解析的方法-->AnnotatedElement接口
+
+```java
+注解的解析：说白了就是将注解中的属性值获取出来
+1.注解解析涉及到的接口:AnnotatedElement接口
+	实现类: Accessibleobject, class, Constructor, Executable, Field, Method, Package,Parameter
+	
+2.解析思路：先判断指定位置上有没有使用指定的注解，如果有，获取指定的注解，获取注解中的属性值
+
+	a.boolean	isAnnotationPresent
+	(class<? extends Annotation> annotationclass)->判断指定位置上有没有指定的注解
+	比如:判断Bookshelf上有没有Book注解
+		class bookshelf = Bookshelf.class
+		bookshelf.isAnnotationPresent(Book.class)
+		
+b.getAnnotation (class <T> annotationclass)->获取指定的注解，岖回值类型为获取的注解类型
+	比如:获取BookShelf上的Book注解
+		class bookshelf = Bookshelf.class
+		boolean result 
+		= bookshelf.isAnnotationPresent(Book.class)
+		如果result为true,证明Bookshelf上有Book注解，那就获取
+		Book book = bookshelf.getAnnotation(Book.class)
+```
+
+```java
+public class Test01 {
+    public static void main(String[] args) {
+        Class<BookShelf> bookShelfClass = BookShelf.class;
+        //判断是否有book注解
+        boolean b 
+           = bookShelfClass.isAnnotationPresent(Book.class);
+        System.out.println(b);
+        if (b){
+            //获取book注解
+            Book book 
+               = bookShelfClass.getAnnotation(Book.class);
+            System.out.println(book.name());
+            System.out.println(Arrays.toString(book.authors()));
+            System.out.println(book.price());
+            System.out.println(book.quantity());
+        }
+    }
+}
+```
+
+> 上述代码解析失败，原因可能是Book注解为加载进内存
+
 ## 第五章 元注解
 
+```java
+1.概述注解就是管理注解的注解
+3.怎么使用：
+a.@Target:控制注解的使用位置
+	属性:ElementType[]valueO;
+			ElementType是一个枚举，里面的成员可以类名直接调用
+			ElementType中的成员：
+		TYPE：控制注解能使用在类上
+		FIELD：控制注解能使用在属性上
+		METHOD:控制注解能使用在方法上
+		PARAMETER:控制注解能使用在参数上
+		CONSTRUCTOR:控制注解能使用在构造上
+		LOCAL_VARIABLE:控制注解能使用在局部变量上
+		
+b.@Retention:控制注解的生命周期(加载位置)
+	属性:RetentionPolicyvalueO;
+		RetentionPolicy是一个枚举，里面的成员可以类名直接调用
+		RetentionPolicy中的成员:
+			SOURCE:控制注解能在源码中出现->默认
+			CLASS:控制注解能在class文件中出现
+			RUNTIME：控制注解能在内存中出现
+```
+
+```java
+package com.learn.f_annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target({ElementType.TYPE,ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Book {
+    //书名
+    String name();
+    //作者
+    String[] authors();
+    //价格
+    int price();
+    //库存
+    int quantity() default 100;
+
+}
+
+```
+
+
+
 ## 第六章 枚举
+
+### 1.类名直接调用
+
+```java
+1.概述：五大引用数据类型：
+类	数组	接口	注解	枚举
+2.定义:
+	public enum枚举类名{
+	
+	}
+	所有的枚举类父类都是Enum
+3.定义枚举值：
+a.枚举值特点：都是static final，但是定义的时候不要写出来，写出来报错
+	写完所有的枚举值之后，最后加个;
+	枚举值名字要大写->开发习惯
+	
+b.使用：类名直接调用
+4.构造和成员变量
+        都是private类型
+```
+
+```java
+public enum State {
+    //相当于State WEIFUKUAN=new State();new了一个本类对象
+    WEIFUKUAN("未付款"),
+    YIFUKUAN("已付款"),
+    WEIFAHUO("未发货"),
+    YIFAHUO("已发货");
+
+    private String name;
+    private State(String name) {
+        this.name=name;
+    }
+
+    String getName(){
+        return name;
+    }
+}
+```
+
+
+
+```java
+public class Demo01Enum {
+    public static void main(String[] args) {
+        State weifahuo = State.WEIFAHUO;
+        System.out.println(weifahuo.getName());
+    }
+}
+```
+
+### 2.枚举的方法_Enum
+
+```
+toString -->
+values[] -->返回所有枚举值
+valueOf(String str) -->将String转变为枚举值
+```
+
+
+
+```java
+public class Demo01Enum {
+    public static void main(String[] args) {
+        State weifahuo = State.WEIFAHUO;
+        System.out.println(weifahuo.getName());
+
+        System.out.println("===========================");
+        String yifahuo = State.YIFUKUAN.toString();
+        System.out.println(yifahuo);
+
+        System.out.println("===========================");
+        State[] values = State.values();
+        for (State value : values) {
+            System.out.println(value.getName());
+        }
+
+        System.out.println("===========================");
+        State s=State.valueOf("YIFUKUAN");
+        System.out.println(s);
+    }
+}
+```
+
+
 
 # Re-Learn
 
