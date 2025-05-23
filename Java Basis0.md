@@ -8673,8 +8673,8 @@ public class Test02 {
 
 ### 3.java 13的switch语句
 
-Java13提出了第二个switch表达式预览，引I入了yield语句，用于返回值。这意味着，switch表达式(返回值)应该使用yield语句，switch语句(不返回值)应该使用break语句。
-案例需求：判断季节。
+*Java13提出了第二个switch表达式预览，**引**I入了yield语句，用于返回值。这意味着，switch表达式(返回值)应该使用yield语句，switch语句(不返回值)应该使用break语句。*
+*案例需求：判断季节。*
 
 ```java
 package com.learn.f_new;
