@@ -406,7 +406,9 @@ maven_A中添加了maven_B依赖,maven_B中添加了Druid依赖,在maven_A项目
 
 ### 10.1 Maven工程中的继承
 
-在父工程下新建子工程,子工程自动继承父工程的配置信息,子工程的pom.xml文件自动生成以下代码即父工程坐标
+在父工程下新建子工程,子工程自动继承父工程的配置信息,子工程的pom.xml文件自动生成以下代码即父工程坐标：
+
+> 父工程一般只是用来聚合子工程，修改依赖和配置信息，不需要src,可以讲src文件夹删除
 
 ```xml
     <modelVersion>4.0.0</modelVersion>
@@ -443,3 +445,22 @@ maven_A中添加了maven_B依赖,maven_B中添加了Druid依赖,在maven_A项目
 手动添加所需要的依赖,只需要GA属性,可以不用添加版本号,这样整个项目的版本号就可以统一由父工程控制
 
 ![image-20250523183948898](C:\Users\xu\AppData\Roaming\Typora\typora-user-images\image-20250523183948898.png)
+
+### 10.2 Maven工程中的聚合关系
+
+Maven聚合是指多个项目组织到一个父级项目中一起构建和管理的机制。
+
+聚合作用：管理多个子项目，方便维护和管理；构建和发布一组相关的项目；
+
+优化构建顺序；统一管理依赖项。
+
+在父工程的pom.xml文件下添加<modules>标签，添加子工程的路径，如果是在父工程下直接新建子工程module，则此段代码为自动生成
+
+```xml
+    <modules>
+        <!-- 添加为子工程的路径-->
+        <module>maven_son</module>
+    </modules>
+```
+
+## 11. Maven私服
